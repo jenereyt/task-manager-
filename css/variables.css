@@ -1,0 +1,13 @@
+:root {
+  --primary-color: #6366f1;
+  --primary-light: #818cf8;
+  --primary-dark: #4f46e5;
+  --secondary-color: #14b8a6;
+  --background-light: #f8fafc;
+  --background-dark: #f1f5f9;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}

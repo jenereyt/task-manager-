@@ -1,0 +1,124 @@
+.aside {
+  position: fixed;
+  left: 0;
+  top: 50px;
+  width: 300px;
+  height: calc(100vh - 50px);
+  background: white;
+  transform: translateX(-280px); /* Оставляем 10px видимыми */
+  transition: transform 0.3s ease;
+  z-index: 99;
+  border-right: 1px solid #e0e6ed;
+}
+
+/* Белая полоска справа */
+.aside::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 10px;
+  height: 100%;
+  background: white;
+  border-right: 1px solid #e0e6ed;
+  cursor: pointer;
+}
+
+.aside.open {
+  transform: translateX(0);
+}
+
+.aside-content {
+  padding: 20px 0;
+  height: 100%;
+  overflow-y: auto;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s;
+}
+
+.aside.open .aside-content {
+  opacity: 1;
+  visibility: visible;
+}
+
+.toggle-btn {
+  position: absolute;
+  top: 80px;
+  right: -24px;
+  z-index: 100;
+  background: white;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 0 4px 4px 0;
+  box-shadow: 1px 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-btn img {
+  width: 16px;
+  height: 16px;
+}
+
+
+.account-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  text-align: center;
+}
+
+.avatar-circle {
+  width: 80px;
+  height: 80px;
+  background: #e0e6ed;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.avatar-circle span {
+  font-size: 32px;
+  color: #666;
+}
+
+.account-placeholder h3 {
+  margin: 0 0 8px;
+  color: #333;
+}
+
+.account-placeholder p {
+  margin: 0 0 16px;
+  color: #666;
+}
+
+.login-btn {
+  padding: 8px 24px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.login-btn:hover {
+  background: #0056b3;
+}
+
+.tab {
+  display: none;
+}
+
+.tab.active {
+  display: block;
+}

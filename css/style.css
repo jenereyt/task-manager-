@@ -1,0 +1,49 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--background-light);
+  color: var(--text-primary);
+}
+
+.app {
+  display: flex;
+  min-height: 100vh;
+  padding-top: 50px;
+}
+
+.main-content {
+  flex-grow: 1;
+  margin-left: 0;
+  padding: 20px;
+  transition: margin-left 0.3s ease;
+  position: relative;
+}
+
+.main-content.aside-open {
+  margin-left: 300px;
+}
+
+/* Welcome Screen */
+.welcome-screen {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  padding: 100px 20px;
+}
+
+.welcome-screen h1 {
+  color: var(--primary-color);
+  margin-bottom: 20px;
+}
+
+.welcome-screen p {
+  color: var(--text-secondary);
+  font-size: 18px;
+}
