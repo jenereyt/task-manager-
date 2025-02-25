@@ -1,8 +1,243 @@
+
 .board {
-  min-height: 100vh;
-  margin: -20px;
-  padding: 20px 40px;
-  color: white;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  position: relative;
+  width: 100%;
+  /* Заполняет всю доступную ширину */
+  height: calc(100vh - 60px);
+  overflow: auto;
+  transition: background 0.3s ease;
 }
 
+.board-header {
+  position: absolute;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  width: 100%;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.main-content {
+  margin-left: 20px;
+  /* Для закрытого aside */
+  transition: margin-left 0.3s ease;
+  width: calc(100% - 20px);
+}
+
+.main-content.aside-open {
+  margin-left: 280px;
+  width: calc(100% - 300px);
+}
+
+
+.board-header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.board-header-left h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.board-header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Button Styles */
+.btn {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-icon {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: #555;
+}
+
+.btn-icon:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #222;
+}
+
+.favorite-btn {
+  font-size: 1.2rem;
+  color: #aaa;
+  transition: color 0.3s ease;
+}
+
+.favorite-btn:hover, .favorite-btn.active {
+  color: #ffc107;
+}
+
+.favorite-btn .fas {
+  color: #ffc107;
+}
+
+/* View Options Styles */
+.view-options {
+  display: flex;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.btn-view {
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-view i {
+  font-size: 0.9rem;
+}
+
+.btn-view:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+.btn-view.active {
+  background: #4a6cfa;
+  color: #fff;
+}
+
+.more-options-btn {
+  margin-left: 10px;
+  font-size: 1.2rem;
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  animation: fadeIn 0.2s forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  width: 320px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  transform: translateY(20px);
+  animation: slideUp 0.3s forwards;
+}
+
+@keyframes slideUp {
+  to {
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.close-modal-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #888;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
+.close-modal-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+
+.modal-body {
+  padding: 10px 0;
+}
+
+.options-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.options-list li {
+  padding: 12px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #444;
+  transition: background 0.2s ease;
+}
+
+.options-list li:hover {
+  background: #f5f7ff;
+}
+
+.options-list li i {
+  width: 20px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.options-list li.danger {
+  color: #e53935;
+}
+
+.options-list li.danger i {
+  color: #e53935;
+}

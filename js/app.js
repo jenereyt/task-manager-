@@ -1,14 +1,23 @@
-let isAsideOpen = false;
-let projects = [];
-let activeTab = 'projects';
+import { openProject } from './board.js';
+export let projects = [];
+export let isAsideOpen = false;
+export let activeTab = 'projects';
+
 const gradients = [
   { id: 1, name: 'Океанский бриз', value: 'linear-gradient(135deg, #48c6ef 0%, #6f86d6 100%)' },
   { id: 2, name: 'Пурпурное блаженство', value: 'linear-gradient(135deg, #7f7fd5 0%, #86a8e7 50%, #91eae4 100%)' },
   { id: 3, name: 'Летний закат', value: 'linear-gradient(135deg, #fd746c 0%, #ff9068 100%)' },
   { id: 4, name: 'Лесное утро', value: 'linear-gradient(135deg, #00b09b 0%, #96c93d 100%)' },
   { id: 5, name: 'Лавандовое поле', value: 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)' },
-  { id: 6, name: 'Песчаный пляж', value: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' }
+  { id: 6, name: 'Песчаный пляж', value: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
+  { id: 7, name: 'Ледяная ночь', value: 'linear-gradient(135deg, #1a1a2e 0%, #16222a 100%)' },
+  { id: 8, name: 'Молочный туман', value: 'linear-gradient(135deg, #3f4c6b 0%, #232d3b 100%)' },
+  { id: 9, name: 'Черная бездна', value: 'linear-gradient(135deg, #000000 0%, #434343 100%)' },
+  { id: 10, name: 'Космическая пыль', value: 'linear-gradient(135deg, #4c4c6c 0%, #3e3e5d 100%)' },
+  { id: 11, name: 'Готический стиль', value: 'linear-gradient(135deg, #212121 0%, #373737 100%)' },
+  { id: 12, name: 'Ночная тень', value: 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)' }
 ];
+
 
 function createStructure() {
   const appHTML = `
@@ -20,7 +29,7 @@ function createStructure() {
         <div class="aside-content">
           <div class="tabs-container">
             <div class="tab-buttons">
-              <button class="tab-btn active" d  ata-tab="account">
+              <button class="tab-btn active" data-tab="account">
                 <i class="fas fa-user"></i> Аккаунт
               </button>
               <button class="tab-btn" data-tab="projects">
@@ -97,22 +106,18 @@ function createModal() {
   modalContainer.innerHTML = modalHTML;
   document.body.appendChild(modalContainer.firstElementChild);
 }
-
-function toggleAside() {
-  isAsideOpen = !isAsideOpen;
-  document.querySelector('.aside').classList.toggle('open');
-  document.querySelector('.main-content').classList.toggle('aside-open');
+export function closeAside() {
+  const aside = document.querySelector('.aside');
   const toggleBtnImg = document.querySelector('.toggle-btn img');
-  toggleBtnImg.src = isAsideOpen ? '/assets/left_arrow_icon.svg' : '/assets/right_arrow_icon.svg';
-}
 
-function closeAside() {
   isAsideOpen = false;
-  document.querySelector('.aside').classList.remove('open');
+  aside.classList.remove('open');
   document.querySelector('.main-content').classList.remove('aside-open');
-  document.querySelector('.toggle-btn').innerHTML = '☰';
-}
+  toggleBtnImg.src = '/assets/right_arrow_icon.svg';
 
+  // Сообщаем о закрытии aside
+  document.dispatchEvent(new CustomEvent('asideToggled', { detail: { isOpen: false } }));
+}
 function setupAsideInteraction() {
   const aside = document.querySelector('.aside');
   const toggleBtn = document.querySelector('.toggle-btn');
@@ -122,8 +127,6 @@ function setupAsideInteraction() {
     isAsideOpen = !isAsideOpen;
     aside.classList.toggle('open');
     document.querySelector('.main-content').classList.toggle('aside-open');
-
-    // Update arrow icon
     toggleBtnImg.src = isAsideOpen
       ? '/assets/left_arrow_icon.svg'
       : '/assets/right_arrow_icon.svg';
@@ -151,12 +154,10 @@ function setupAsideInteraction() {
 function switchTab(tabName) {
   activeTab = tabName;
 
-  // Update tab buttons
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.tab === tabName);
   });
 
-  // Update tab content
   document.querySelectorAll('.tab').forEach(tab => {
     if (tab.id === `${tabName}-tab`) {
       tab.style.display = 'block';
@@ -166,20 +167,6 @@ function switchTab(tabName) {
       tab.classList.remove('active');
     }
   });
-}
-
-function openProject(projectId) {
-  const project = projects.find(p => p.id === Number(projectId));
-  if (!project) return;
-
-  closeAside();
-  const mainContent = document.querySelector('.main-content');
-  mainContent.innerHTML = `
-    <div class="board" style="background: ${project.background}">
-      <h1>${project.name}</h1>
-      <!-- Здесь будет содержимое доски -->
-    </div>
-  `;
 }
 
 function showModal(project = null) {
@@ -210,31 +197,20 @@ function showModal(project = null) {
 }
 
 function setupEventListeners() {
-  // Основные элементы интерфейса
-  const toggleBtn = document.querySelector('.toggle-btn');
-  const aside = document.querySelector('.aside');
   const createProjectBtn = document.querySelector('.create-project-btn');
   const projectsList = document.querySelector('.projects-list');
   const tabButtons = document.querySelectorAll('.tab-btn');
 
-  toggleBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    toggleAside();
-  });
-
-  // Обработчики для табов
   tabButtons.forEach(btn => {
     btn.addEventListener('click', (e) => {
       switchTab(e.target.closest('.tab-btn').dataset.tab);
     });
   });
 
-  // Обработчик создания проекта
   createProjectBtn.addEventListener('click', () => {
     showModal();
   });
 
-  // Обработчик открытия проекта
   projectsList.addEventListener('click', (e) => {
     const projectItem = e.target.closest('.project-item');
     if (projectItem) {
@@ -242,7 +218,6 @@ function setupEventListeners() {
     }
   });
 
-  // Настройка модального окна
   const modal = document.querySelector('.modal');
   const closeBtn = modal.querySelector('.close-modal');
   const saveBtn = modal.querySelector('.save-project-btn');
@@ -294,9 +269,7 @@ function setupEventListeners() {
       </div>
     `;
 
-    const projectsList = document.querySelector('.projects-list');
     projectsList.insertBefore(projectElement, projectsList.firstChild);
-
     modal.style.display = 'none';
   });
 }
@@ -309,7 +282,6 @@ function init() {
   switchTab('account');
 }
 
-// Инициализация приложения
 document.addEventListener('DOMContentLoaded', () => {
   init();
 });

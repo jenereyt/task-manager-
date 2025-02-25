@@ -19,13 +19,9 @@ body {
 .main-content {
   flex-grow: 1;
   margin-left: 0;
-  padding: 20px;
+  padding-left: 20px;
   transition: margin-left 0.3s ease;
   position: relative;
-}
-
-.main-content.aside-open {
-  margin-left: 300px;
 }
 
 /* Welcome Screen */
