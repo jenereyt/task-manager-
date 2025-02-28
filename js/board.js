@@ -1,4 +1,5 @@
-import { projects, closeAside } from './app.js';
+import { projects, closeAside, toggleFavorite } from './app.js';
+import { initializeBoard, setupViewSwitching } from './app.js';
 
 export function openProject(projectId) {
   const project = projects.find(p => p.id === Number(projectId));
@@ -7,12 +8,12 @@ export function openProject(projectId) {
   closeAside();
   const mainContent = document.querySelector('.main-content');
   mainContent.innerHTML = `
-    <div class="board" style="background: ${project.background}">
+    <div class="board" style="background: ${project.background}" data-project-id="${project.id}">
       <div class="board-header">
         <div class="board-header-left">
-          <h1>${project.name}</h1>
-          <button class="btn btn-icon favorite-btn" title="Add to favorites">
-            <i class="far fa-star"></i>
+          <h1 class="project-title" title="Дважды кликните для редактирования">${project.name}</h1>
+          <button class="btn btn-icon favorite-btn" title="${project.favorite ? 'Удалить из избранного' : 'Добавить в избранное'}">
+            <i class="${project.favorite ? 'fas' : 'far'} fa-star"></i>
           </button>
         </div>
         <div class="board-header-right">
@@ -36,13 +37,24 @@ export function openProject(projectId) {
     </div>
   `;
 
-  // Add event listeners for the buttons
+  // Добавляем обработчик двойного клика для заголовка
+  const projectTitle = document.querySelector('.project-title');
+  projectTitle.addEventListener('dblclick', makeEditable);
+
+  // Обновляем обработчик события для кнопки избранного
   const favoriteBtn = document.querySelector('.favorite-btn');
   favoriteBtn.addEventListener('click', () => {
-    // Placeholder for favorite function that will be added later
-    console.log('Add to favorites clicked');
-    favoriteBtn.innerHTML = '<i class="fas fa-star"></i>'; // Change to filled star
-    // This will be replaced with proper function later
+    // Используем функцию toggleFavorite вместо существующего кода
+    toggleFavorite(project.id);
+  });
+
+  // Инициализируем доску и установим переключение видов
+  setupViewSwitching(project.id);
+
+  // More options button (ellipsis)
+  document.querySelector('.more-options-btn').addEventListener('click', () => {
+    console.log('More options clicked');
+    showMoreOptionsModal();
   });
 
   // View switching buttons
@@ -73,14 +85,15 @@ export function openProject(projectId) {
     console.log('More options clicked');
     showMoreOptionsModal();
   });
-}
 
+}
 // Helper function to set active view button
 function setActiveView(activeButton) {
   const viewButtons = document.querySelectorAll('.btn-view');
   viewButtons.forEach(btn => btn.classList.remove('active'));
   activeButton.classList.add('active');
 }
+
 const handleAsideToggle = (e) => {
   const board = document.querySelector('.board');
   if (board) {
@@ -95,8 +108,6 @@ const handleAsideToggle = (e) => {
   }
 };
 
-
-// Function to show more options modal
 function showMoreOptionsModal() {
   const modal = document.createElement('div');
   modal.className = 'modal more-options-modal';
@@ -143,4 +154,118 @@ function showMoreOptionsModal() {
     });
   });
 }
+
+// Функция для преобразования заголовка в редактируемое поле
+// Исправленная функция makeEditable
+function makeEditable(e) {
+  const titleElement = e.target;
+  const projectId = document.querySelector('.board').dataset.projectId;
+  const currentTitle = titleElement.textContent;
+
+  // Создаем input для редактирования
+  const inputElement = document.createElement('input');
+  inputElement.type = 'text';
+  inputElement.value = currentTitle;
+  inputElement.className = 'edit-title-input';
+  inputElement.style.fontSize = window.getComputedStyle(titleElement).fontSize;
+  inputElement.style.fontWeight = 'bold';
+  inputElement.style.width = '100%';
+
+  // Заменяем h1 на input
+  titleElement.parentNode.replaceChild(inputElement, titleElement);
+
+  // Фокусируемся на input и выделяем весь текст
+  inputElement.focus();
+  inputElement.select();
+
+  // Флаг, чтобы отслеживать, было ли уже выполнено сохранение
+  let isSaved = false;
+
+  // Обработчик для сохранения изменений при потере фокуса
+  inputElement.addEventListener('blur', () => {
+    if (!isSaved) {
+      isSaved = true;
+      saveTitle(inputElement, projectId);
+    }
+  });
+
+  // Обработчик для сохранения изменений при нажатии Enter
+  inputElement.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Предотвращаем стандартное поведение
+      if (!isSaved) {
+        isSaved = true;
+        saveTitle(inputElement, projectId);
+      }
+    } else if (e.key === 'Escape') {
+      // Восстанавливаем исходное название при нажатии Escape
+      e.preventDefault();
+      if (!isSaved) {
+        isSaved = true;
+        createTitleElement(currentTitle, projectId);
+      }
+    }
+  });
+}
+
+// Исправленная функция saveTitle
+function saveTitle(inputElement, projectId) {
+  const newTitle = inputElement.value.trim();
+
+  // Если название не пустое, сохраняем его
+  if (newTitle) {
+    // Находим проект в массиве проектов и обновляем название
+    const project = projects.find(p => p.id === Number(projectId));
+    if (project) {
+      project.name = newTitle;
+
+      // Обновляем название в боковой панели
+      updateProjectNameInSidebar(projectId, newTitle);
+    }
+
+    // Создаем новый элемент заголовка с обновленным названием
+    createTitleElement(newTitle, projectId);
+  } else {
+    // Если название пустое, восстанавливаем исходное название
+    const project = projects.find(p => p.id === Number(projectId));
+    if (project) {
+      createTitleElement(project.name, projectId);
+    }
+  }
+}
+
+// Исправленная функция createTitleElement
+function createTitleElement(title, projectId) {
+  const inputElement = document.querySelector('.edit-title-input');
+
+  if (inputElement && inputElement.parentNode) {
+    const titleElement = document.createElement('h1');
+    titleElement.className = 'project-title';
+    titleElement.textContent = title;
+    titleElement.title = 'Дважды кликните для редактирования';
+
+    // Проверяем, что inputElement всё ещё в DOM
+    if (document.contains(inputElement)) {
+      // Заменяем input на h1
+      inputElement.parentNode.replaceChild(titleElement, inputElement);
+
+      // Добавляем обработчик двойного клика для нового заголовка
+      titleElement.addEventListener('dblclick', makeEditable);
+    }
+  }
+}
+
+// Новая функция для обновления названия в боковой панели
+function updateProjectNameInSidebar(projectId, newName) {
+  // Находим элемент проекта в боковой панели по его ID
+  const projectItem = document.querySelector(`.project-item[data-id="${projectId}"]`);
+  if (projectItem) {
+    // Находим элемент с названием проекта и обновляем его текст
+    const projectNameElement = projectItem.querySelector('.project-name');
+    if (projectNameElement) {
+      projectNameElement.textContent = newName;
+    }
+  }
+}
+
 document.addEventListener('asideToggled', handleAsideToggle);
