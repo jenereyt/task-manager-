@@ -1,3 +1,4 @@
+/* Модальное окно */
 .modal {
   display: none;
   position: fixed;
@@ -7,12 +8,13 @@
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
   z-index: 1000;
+  overflow: auto;
 }
 
 .modal-content {
   position: relative;
   background: white;
-  margin: 15% auto;
+  margin: 10% auto;
   padding: 20px;
   width: 90%;
   max-width: 500px;
@@ -32,4 +34,21 @@
 .modal-title {
   margin: 0 0 20px 0;
   color: #333;
+}
+
+.edit-title-input {
+  width: 100%;
+  background-color: transparent;
+  border: 1px solid var(--primary-color, #4a6cf7);
+  color: var(--text-color, #333);
+  padding: 8px 12px;
+  font-size: 16px;
+  border-radius: 4px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.edit-title-input:focus {
+  border-color: var(--hover-color, #3a5cd5);
+  box-shadow: 0 0 4px var(--hover-color, #3a5cd5);
 }

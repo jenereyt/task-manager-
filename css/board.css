@@ -239,3 +239,143 @@
 .options-list li.danger i {
   color: #e53935;
 }
+
+
+
+
+/* Board view container */
+.board-view {
+  display: flex;
+  align-items: flex-start;
+  padding: 20px;
+  padding-top: 70px;
+  overflow-x: auto;
+  min-height: 600px;
+  width: 100%;
+  position: absolute; /* Добавлено */
+  left: 0; /* Добавлено */
+  bottom: 0; /* Добавлено */
+  top: 0; /* Добавлено */
+}
+
+/* Common styles for all columns */
+.board-column {
+  min-width: 280px;
+  max-width: 280px;
+  margin: 0 8px;
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+.board-column:not(.add-column) {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  min-height: 300px;
+}
+
+/* Column header */
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.column-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.column-header-actions {
+  display: flex;
+}
+
+.btn-icon {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 5px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Column content */
+.column-content {
+  padding: 12px;
+  min-height: 100px;
+  flex-grow: 1;
+}
+
+/* Add column specific styles */
+.board-column.add-column {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  height: 60px;
+  min-height: 60px;
+  align-self: flex-start;
+  margin-top: 30px;
+}
+
+.add-column-btn {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-column-btn i {
+  margin-right: 8px;
+  transition: transform 0.3s ease;
+}
+
+.board-column.add-column:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.add-column-btn:hover i {
+  transform: rotate(90deg);
+}
+
+/* Animation for new columns */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.board-column:not(.add-column) {
+  animation: fadeIn 0.3s ease;
+}
