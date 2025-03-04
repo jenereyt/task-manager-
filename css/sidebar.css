@@ -1,0 +1,83 @@
+/* sidebar.css */
+/* Projects List */
+.projects-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  /* Стили для элементов проектов в боковой панели */
+  .project-item {
+    display: flex;
+    position: relative;
+    padding: 10px;
+    align-items: center;
+    justify-content: space-between;
+    transform: translateX(0);
+    transition: transform 500ms ease;
+    border-radius: 8px;
+  }
+  
+  .project-item:hover {
+    transform: translateX(5px);
+    transition: 500ms ease;
+  }
+  
+  /* Кнопка избранного в боковой панели */
+  .favorite-sidebar-btn {
+    background: rgba(0, 0, 0, 0.41);
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    min-width: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #fff;
+    transition: all 0.2s ease;
+    opacity: 0.7;
+    margin-right: 10px;
+    z-index: 1;
+  }
+  
+  .favorite-sidebar-btn:hover {
+    opacity: 1;
+    background: rgba(85, 85, 85, 0.3);
+  }
+  
+  /* Информация о проекте */
+  .project-info {
+    display: flex;
+    gap: 5px;
+    overflow: hidden;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+  
+  .project-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .project-date {
+    font-size: 0.8em;
+    opacity: 0.8;
+  }
+  
+  /* Активная звезда */
+  .project-item .favorite-sidebar-btn i.fas {
+    color: #FFD700;
+  }
+  
+  /* Улучшение стиля звезды в заголовке доски */
+  .board-header .favorite-btn i.fas {
+    color: #FFD700;
+  }
+  
