@@ -48,3 +48,18 @@
   align-items: center;
   gap: 15px;
 }
+
+.task-placeholder {
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.task.dragging {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  cursor: grabbing;
+}
+
+.task {
+  cursor: grab;
+}

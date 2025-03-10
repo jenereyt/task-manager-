@@ -1,122 +1,216 @@
 /* columns.css */
 /* Контейнер доски (board view) */
 .board-view {
-    display: flex;
-    align-items: flex-start;
-    padding: 20px;
-    padding-top: 70px;
-    overflow-x: auto;
-    min-height: 600px;
-    width: 100%;
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    top: 0;
+  display: flex;
+  align-items: flex-start;
+  padding: 20px;
+  padding-top: 70px;
+  overflow-x: auto;
+  min-height: 600px;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  top: 0;
+}
+
+/* Общие стили для колонок */
+.board-column {
+  position: relative;
+  min-width: 280px;
+  max-width: 280px;
+  margin: 0 8px;
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+.board-column:not(.add-column) {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  min-height: 300px;
+}
+
+/* Заголовок колонки */
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.column-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.column-header-actions {
+  display: flex;
+}
+
+/* Контент колонки */
+.column-content {
+  margin-bottom: 20px ;
+  padding: 12px;
+  min-height: 100px;
+  flex-grow: 1;
+}
+
+/* Стили для колонки "Добавить колонку" */
+.board-column.add-column {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  height: 60px;
+  min-height: 60px;
+  align-self: flex-start;
+  margin-top: 30px;
+}
+
+.add-column-btn {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-column-btn i {
+  margin-right: 8px;
+  transition: transform 0.3s ease;
+}
+
+.board-column.add-column:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.add-column-btn:hover i {
+  transform: rotate(90deg);
+}
+
+/* Анимация появления колонок */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
-  
-  /* Общие стили для колонок */
-  .board-column {
-    position: relative;
-    min-width: 280px;
-    max-width: 280px;
-    margin: 0 8px;
-    border-radius: 10px;
-    background-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    transition: all 0.2s ease;
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  .board-column:not(.add-column) {
-    display: flex;
-    flex-direction: column;
-    height: auto;
-    min-height: 300px;
-  }
-  
-  /* Заголовок колонки */
-  .column-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  
-  .column-header h3 {
-    font-size: 16px;
-    font-weight: 600;
-    color: white;
-    margin: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  
-  .column-header-actions {
-    display: flex;
-  }
-  
-  /* Контент колонки */
-  .column-content {
-    padding: 12px;
-    min-height: 100px;
-    flex-grow: 1;
-  }
-  
-  /* Стили для колонки "Добавить колонку" */
-  .board-column.add-column {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.06);
-    height: 60px;
-    min-height: 60px;
-    align-self: flex-start;
-    margin-top: 30px;
-  }
-  
-  .add-column-btn {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: none;
-    border-radius: 8px;
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  
-  .add-column-btn i {
-    margin-right: 8px;
-    transition: transform 0.3s ease;
-  }
-  
-  .board-column.add-column:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-  
-  .add-column-btn:hover i {
-    transform: rotate(90deg);
-  }
-  
-  /* Анимация появления колонок */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  .board-column:not(.add-column) {
-    animation: fadeIn 0.3s ease;
-  }
-  
+}
+
+.board-column:not(.add-column) {
+  animation: fadeIn 0.3s ease;
+}
+
+/* Продвинутые стили для поля ввода названия колонки */
+.column-name-input {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #2c3e50;
+  background-color: rgba(255, 255, 255, 0.123);
+  border: none;
+  border-radius: 8px;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  outline: none;
+}
+
+.column-name-input:focus {
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 15px rgba(74, 155, 255, 0.15),
+    inset 0 0 0 2px rgba(74, 155, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.column-name-input::placeholder {
+  color: rgba(44, 62, 80, 0.5);
+  font-weight: 400;
+  letter-spacing: 0.2px;
+}
+
+.board-column:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Продвинутые стили для поля ввода задачи */
+.task-input {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 400;
+  color: #2c3e50;
+  background-color: rgba(255, 255, 255, 0.6);
+  border: none;
+  border-radius: 8px;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  outline: none;
+  margin-bottom: 6px;
+}
+
+.task-input:focus {
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 12px rgba(74, 155, 255, 0.12),
+    inset 0 0 0 2px rgba(74, 155, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.task-input::placeholder {
+  color: rgba(44, 62, 80, 0.5);
+  font-weight: 400;
+  letter-spacing: 0.2px;
+}
+
+
+/* Стили для самой задачи */
+.task {
+  padding: 5px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.task:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+
+
+.add-task-btn i {
+  margin-right: 8px;
+  opacity: 0.7;
+}
+
+
+
+

@@ -1,51 +1,74 @@
 /* tasks.css */
 .add-task-btn {
-    position: absolute;
-    bottom: 1px;
-    left: 10px;
-    color: #fff;
-    border: none;
-    width: 100px;
-    padding: 10px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    display: inline-flex;
-    align-items: center;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
-  }
-  
-  .add-task-btn i {
-    margin-right: 5px;
-  }
-  
-  .task-content {
-    font-size: 16px;
-    line-height: 1.5;
-    color: #fff;
-    white-space: normal;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-  }
- 
-  
-  /* forms.css */
+  position: absolute;
+  bottom: 1px;
+  left: 10px;
+  color: #fff;
+  border: none;
+  width: 100px;
+  padding: 10px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+}
+
+.add-task-btn i {
+  margin-right: 5px;
+}
+
+.task-content {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #fff;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+
+/* forms.css */
 .form-group {
-    margin-bottom: 20px;
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 8px;
-    color: #555;
-  }
-  
-  .project-name-input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
-  }
-  
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.project-name-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+/* Предотвращение выделения текста во время перетаскивания */
+.task-content,
+.column-title,
+.add-task-btn,
+body.dragging * {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Класс для тела при перетаскивании */
+body.dragging {
+  cursor: grabbing !important;
+}
+
+/* Особое выделение для перетаскиваемого элемента */
+.task.dragging {
+  cursor: grabbing;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  transform: rotate(1deg) scale(1.02);
+  transition: none;
+}

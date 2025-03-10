@@ -92,3 +92,148 @@ export function makeTaskEditable(taskContentElement) {
         }
     });
 }
+export function initDragAndDrop() {
+    document.addEventListener('mousedown', handleDragStart);
+    document.addEventListener('mousemove', handleDragMove);
+    document.addEventListener('mouseup', handleDragEnd);
+
+    // Для сенсорных устройств
+    document.addEventListener('touchstart', handleDragStart, { passive: false });
+    document.addEventListener('touchmove', handleDragMove, { passive: false });
+    document.addEventListener('touchend', handleDragEnd);
+}
+
+// Переменные для операций перетаскивания
+let draggedElement = null;
+let dragStartX = 0;
+let dragStartY = 0;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
+let placeholder = null;
+let originalColumn = null;
+
+// Обработка начала перетаскивания
+function handleDragStart(e) {
+    // Для сенсорных событий
+    if (e.type === 'touchstart') {
+        e.preventDefault();
+        e = e.touches[0];
+    }
+
+    // Находим элемент задачи, которую перетаскивают
+    const taskElement = e.target.closest('.task');
+    if (!taskElement) return;
+
+    // Сохраняем начальную позицию и создаем клон
+    draggedElement = taskElement;
+    originalColumn = taskElement.closest('.column-content');
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    dragOffsetX = e.clientX - taskElement.getBoundingClientRect().left;
+    dragOffsetY = e.clientY - taskElement.getBoundingClientRect().top;
+
+    // Создаем заполнитель для сохранения места в колонке
+    placeholder = document.createElement('div');
+    placeholder.className = 'task-placeholder';
+    placeholder.style.height = `${taskElement.offsetHeight}px`;
+    placeholder.style.width = `${taskElement.offsetWidth}px`;
+
+    // Вставляем заполнитель и стилизуем перетаскиваемый элемент
+    taskElement.parentNode.insertBefore(placeholder, taskElement);
+    taskElement.style.position = 'absolute';
+    taskElement.style.zIndex = '1000';
+    taskElement.style.width = `${taskElement.offsetWidth}px`;
+    taskElement.style.opacity = '0.8';
+    document.body.appendChild(taskElement);
+
+    // Позиционируем перетаскиваемый элемент
+    updateDraggedPosition(e.clientX, e.clientY);
+
+    // Добавляем класс для стилизации
+    taskElement.classList.add('dragging');
+}
+
+// Обработка движения при перетаскивании
+function handleDragMove(e) {
+    if (!draggedElement) return;
+
+    // Для сенсорных событий
+    if (e.type === 'touchmove') {
+        e.preventDefault();
+        e = e.touches[0];
+    }
+
+    updateDraggedPosition(e.clientX, e.clientY);
+
+    // Находим колонку, над которой находится задача
+    const targetColumn = findColumnUnderCursor(e.clientX, e.clientY);
+    if (targetColumn) {
+        // Находим задачи в колонке
+        const taskElements = Array.from(targetColumn.querySelectorAll('.task:not(.dragging)'));
+
+        // Находим задачу, после которой должна идти перетаскиваемая задача
+        let nextTask = taskElements.find(task => {
+            const rect = task.getBoundingClientRect();
+            return e.clientY < rect.top + rect.height / 2;
+        });
+
+        // Перемещаем заполнитель
+        if (nextTask) {
+            targetColumn.insertBefore(placeholder, nextTask);
+        } else {
+            targetColumn.appendChild(placeholder);
+        }
+    }
+}
+
+// Обработка окончания перетаскивания
+function handleDragEnd(e) {
+    if (!draggedElement) return;
+
+    // Сбрасываем стили перетаскиваемого элемента
+    draggedElement.style.position = '';
+    draggedElement.style.top = '';
+    draggedElement.style.left = '';
+    draggedElement.style.zIndex = '';
+    draggedElement.style.width = '';
+    draggedElement.style.opacity = '';
+    draggedElement.classList.remove('dragging');
+
+    // Заменяем заполнитель на задачу
+    if (placeholder && placeholder.parentNode) {
+        placeholder.parentNode.insertBefore(draggedElement, placeholder);
+        placeholder.parentNode.removeChild(placeholder);
+    }
+
+    // Сбрасываем переменные
+    draggedElement = null;
+    placeholder = null;
+    originalColumn = null;
+}
+
+// Обновляем позицию перетаскиваемого элемента
+function updateDraggedPosition(clientX, clientY) {
+    if (!draggedElement) return;
+
+    draggedElement.style.left = `${clientX - dragOffsetX}px`;
+    draggedElement.style.top = `${clientY - dragOffsetY}px`;
+}
+
+// Находим колонку под курсором
+function findColumnUnderCursor(clientX, clientY) {
+    const columns = document.querySelectorAll('.column-content');
+
+    for (const column of columns) {
+        const rect = column.getBoundingClientRect();
+        if (
+            clientX >= rect.left &&
+            clientX <= rect.right &&
+            clientY >= rect.top &&
+            clientY <= rect.bottom
+        ) {
+            return column;
+        }
+    }
+
+    return null;
+}

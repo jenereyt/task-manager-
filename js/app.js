@@ -1,5 +1,6 @@
 export let projects = [];
 import { openProject } from './board.js';
+import { initDragAndDrop } from './card.js';
 export let isAsideOpen = false;
 export let activeTab = 'projects';
 
@@ -289,6 +290,7 @@ function setupEventListeners() {
     projectsList.insertBefore(projectElement, projectsList.firstChild);
     modal.style.display = 'none';
   });
+  initDragAndDrop();
 }
 
 export function toggleFavorite(projectId) {
