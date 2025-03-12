@@ -1,3 +1,114 @@
+// Глобальная переменная для отслеживания недавно открытой модалки
+let modalJustOpened = false;
+
+// Функция для отображения модального окна настроек задачи
+function showTaskOptionsModal(taskElement) {
+    // Отмечаем, что модалка только что открылась
+    modalJustOpened = true;
+
+    // Закрываем предыдущую модалку, если есть
+    const existingModal = document.querySelector('.task-options-modal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    // Получаем данные задачи
+    const taskId = taskElement.dataset.taskId;
+    const taskContent = taskElement.querySelector('.task-content').textContent.trim();
+    const deadline = taskElement.dataset.deadline || '';
+    const isCompleted = taskElement.dataset.completed === 'true';
+
+    // Создаем модальное окно
+    const modalElement = document.createElement('div');
+    modalElement.className = 'task-options-modal';
+    modalElement.dataset.forTaskId = taskId;
+
+    // Позиционируем модалку рядом с задачей
+    const taskRect = taskElement.getBoundingClientRect();
+    modalElement.style.position = 'absolute';
+    modalElement.style.top = `${taskRect.bottom + window.scrollY + 5}px`;
+    modalElement.style.left = `${taskRect.left + window.scrollX}px`;
+    modalElement.style.zIndex = '1001';
+
+    // Заполняем содержимое модалки
+    modalElement.innerHTML = `
+        <div class="task-modal-header">
+            <h3>Настройки задачи</h3>
+            <button class="task-modal-close">&times;</button>
+        </div>
+        <div class="task-modal-content">
+            <div class="task-modal-field">
+                <label for="task-modal-text-${taskId}">Текст задачи:</label>
+                <input type="text" id="task-modal-text-${taskId}" class="task-modal-text" value="${taskContent}">
+            </div>
+            
+            <div class="task-modal-field">
+                <label for="task-modal-deadline-${taskId}">Срок выполнения:</label>
+                <input type="datetime-local" id="task-modal-deadline-${taskId}" class="task-modal-deadline" value="${deadline}">
+            </div>
+            
+            <div class="task-modal-field">
+                <label class="task-completion-label">
+                    <input type="checkbox" class="task-modal-completed" ${isCompleted ? 'checked' : ''}>
+                    Задача выполнена
+                </label>
+            </div>
+            
+            <div class="task-modal-buttons">
+                <button class="task-modal-save">Сохранить</button>
+                <button class="task-modal-delete">Удалить задачу</button>
+            </div>
+        </div>
+    `;
+
+    // Предотвращаем закрытие модалки при клике на неё
+    modalElement.addEventListener('click', function(e) {
+        // Останавливаем распространение клика чтобы не дойти до документа
+        e.stopPropagation();
+    });
+
+    // Добавляем модалку в DOM
+    document.body.appendChild(modalElement);
+
+    // Добавляем обработчики событий
+    modalElement.querySelector('.task-modal-close').addEventListener('click', function () {
+        modalElement.remove();
+    });
+
+    modalElement.querySelector('.task-modal-save').addEventListener('click', function () {
+        saveTaskFromModal(modalElement, taskElement);
+    });
+
+    modalElement.querySelector('.task-modal-delete').addEventListener('click', function () {
+        deleteTask(taskElement);
+        modalElement.remove();
+    });
+
+    // Вместо обработчика документа для закрытия, добавляем его на отдельную оверлейную область
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.right = '0';
+    overlay.style.bottom = '0';
+    overlay.style.zIndex = '1000'; // Ниже модалки но выше всего остального
+    overlay.style.backgroundColor = 'transparent'; // Прозрачный фон
+
+    document.body.appendChild(overlay);
+
+    overlay.addEventListener('click', function() {
+        modalElement.remove();
+        overlay.remove();
+    });
+
+    // Сбрасываем флаг после того как модалка отрисована
+    setTimeout(() => {
+        modalJustOpened = false;
+    }, 100);
+}
+
+// Остальной код остается без изменений
 export function addNewTask(columnElement) {
     const columnContent = columnElement.querySelector('.column-content');
     if (!columnContent) {
@@ -50,29 +161,74 @@ export function saveTask(inputField, taskElement) {
         return;
     }
 
-    // Заменяем поле ввода на статичный элемент с текстом задачи
-    const taskDisplay = document.createElement('div');
-    taskDisplay.className = 'task-content';
-    taskDisplay.textContent = taskText;
-    taskDisplay.title = "Дважды кликните для редактирования";
+    // Получаем ID задачи из атрибута data-task-id
+    const taskId = taskElement.dataset.taskId;
+
+    // Проверяем, есть ли у задачи deadline и статус выполнения
+    let deadline = taskElement.dataset.deadline || '';
+    let isCompleted = taskElement.dataset.completed === 'true';
+
+    // Заменяем поле ввода на статичный элемент с текстом задачи и кнопкой опций
+    const taskContent = document.createElement('div');
+    taskContent.className = 'task-wrapper';
+
+    // Добавляем класс, если задача выполнена
+    const completedClass = isCompleted ? 'task-completed' : '';
+
+    taskContent.innerHTML = `
+        <div class="task-content ${completedClass}" title="Дважды кликните для редактирования">
+            ${taskText}
+        </div>
+        <div class="task-options-btn" title="Настройки задачи">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <circle cx="8" cy="4" r="1.5"/>
+                <circle cx="8" cy="8" r="1.5"/>
+                <circle cx="8" cy="12" r="1.5"/>
+            </svg>
+        </div>
+    `;
+
+    // Если есть срок, добавляем индикатор дедлайна
+    if (deadline) {
+        const deadlineElement = document.createElement('div');
+        deadlineElement.className = 'task-deadline';
+        deadlineElement.textContent = formatDeadline(deadline);
+        taskContent.appendChild(deadlineElement);
+    }
+
+    taskElement.innerHTML = '';
+    taskElement.appendChild(taskContent);
+
+    // Добавляем обработчики событий
+    const taskDisplay = taskElement.querySelector('.task-content');
     taskDisplay.addEventListener('dblclick', function () {
         makeTaskEditable(taskDisplay);
     });
 
-    taskElement.innerHTML = '';
-    taskElement.appendChild(taskDisplay);
+    const optionsButton = taskElement.querySelector('.task-options-btn');
+    optionsButton.addEventListener('click', function (e) {
+        e.stopPropagation();
+        showTaskOptionsModal(taskElement);
+    });
 }
 
 export function makeTaskEditable(taskContentElement) {
-    const currentText = taskContentElement.textContent;
+    const currentText = taskContentElement.textContent.trim();
     const taskElement = taskContentElement.closest('.task');
     const inputElement = document.createElement('input');
     inputElement.type = 'text';
     inputElement.value = currentText;
     inputElement.className = 'task-input';
 
+    // Сохраняем содержимое задачи, чтобы восстановить его при отмене
+    const originalContent = taskElement.innerHTML;
+
+    const editableWrapper = document.createElement('div');
+    editableWrapper.className = 'editable-task';
+    editableWrapper.appendChild(inputElement);
+
     taskElement.innerHTML = '';
-    taskElement.appendChild(inputElement);
+    taskElement.appendChild(editableWrapper);
 
     inputElement.focus();
     inputElement.select();
@@ -87,11 +243,117 @@ export function makeTaskEditable(taskContentElement) {
             inputElement.blur();
         } else if (e.key === 'Escape') {
             e.preventDefault();
-            inputElement.value = currentText;
-            inputElement.blur();
+            // Восстанавливаем оригинальное содержимое при отмене
+            taskElement.innerHTML = originalContent;
+
+            // Повторно добавляем обработчики событий
+            const taskDisplay = taskElement.querySelector('.task-content');
+            taskDisplay.addEventListener('dblclick', function () {
+                makeTaskEditable(taskDisplay);
+            });
+
+            const optionsButton = taskElement.querySelector('.task-options-btn');
+            optionsButton.addEventListener('click', function (e) {
+                e.stopPropagation();
+                showTaskOptionsModal(taskElement);
+            });
         }
     });
 }
+
+// Функция для сохранения задачи из модального окна
+function saveTaskFromModal(modalElement, taskElement) {
+    const taskId = taskElement.dataset.taskId;
+    const textInput = modalElement.querySelector(`#task-modal-text-${taskId}`);
+    const deadlineInput = modalElement.querySelector(`#task-modal-deadline-${taskId}`);
+    const completedCheckbox = modalElement.querySelector('.task-modal-completed');
+
+    // Получаем новые значения
+    const newText = textInput.value.trim();
+    const newDeadline = deadlineInput.value;
+    const isCompleted = completedCheckbox.checked;
+
+    // Обновляем атрибуты задачи
+    taskElement.dataset.deadline = newDeadline;
+    taskElement.dataset.completed = isCompleted.toString();
+
+    // Обновляем отображение задачи
+    const taskDisplay = taskElement.querySelector('.task-content');
+    taskDisplay.textContent = newText;
+
+    // Добавляем или удаляем класс выполненной задачи
+    if (isCompleted) {
+        taskDisplay.classList.add('task-completed');
+    } else {
+        taskDisplay.classList.remove('task-completed');
+    }
+
+    // Обновляем или добавляем дедлайн
+    let deadlineElement = taskElement.querySelector('.task-deadline');
+    if (newDeadline) {
+        if (!deadlineElement) {
+            deadlineElement = document.createElement('div');
+            deadlineElement.className = 'task-deadline';
+            taskElement.querySelector('.task-wrapper').appendChild(deadlineElement);
+        }
+        deadlineElement.textContent = formatDeadline(newDeadline);
+    } else if (deadlineElement) {
+        deadlineElement.remove();
+    }
+
+    // Удаляем оверлейный слой, если есть
+    const overlay = document.querySelector('.modal-overlay');
+    if (overlay) {
+        overlay.remove();
+    }
+
+    // Закрываем модальное окно
+    modalElement.remove();
+}
+
+// Функция для удаления задачи
+function deleteTask(taskElement) {
+    if (taskElement && taskElement.parentNode) {
+        taskElement.parentNode.removeChild(taskElement);
+    }
+    
+    // Удаляем оверлейный слой, если есть
+    const overlay = document.querySelector('.modal-overlay');
+    if (overlay) {
+        overlay.remove();
+    }
+}
+
+// Функция для форматирования даты дедлайна
+function formatDeadline(isoDateString) {
+    if (!isoDateString) return '';
+
+    const date = new Date(isoDateString);
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const isToday = date.getDate() === now.getDate() &&
+        date.getMonth() === now.getMonth() &&
+        date.getFullYear() === now.getFullYear();
+
+    const isTomorrow = date.getDate() === tomorrow.getDate() &&
+        date.getMonth() === tomorrow.getMonth() &&
+        date.getFullYear() === tomorrow.getFullYear();
+
+    const options = { hour: '2-digit', minute: '2-digit' };
+    const timeString = date.toLocaleTimeString('ru-RU', options);
+
+    if (isToday) {
+        return `Сегодня, ${timeString}`;
+    } else if (isTomorrow) {
+        return `Завтра, ${timeString}`;
+    } else {
+        const dateOptions = { day: 'numeric', month: 'short' };
+        return `${date.toLocaleDateString('ru-RU', dateOptions)}, ${timeString}`;
+    }
+}
+
 export function initDragAndDrop() {
     document.addEventListener('mousedown', handleDragStart);
     document.addEventListener('mousemove', handleDragMove);
@@ -114,6 +376,27 @@ let originalColumn = null;
 
 // Обработка начала перетаскивания
 function handleDragStart(e) {
+    // Если модалка только что открылась, игнорируем начало перетаскивания
+    if (modalJustOpened) {
+        return;
+    }
+
+    // Закрываем модальное окно при начале перетаскивания
+    const existingModal = document.querySelector('.task-options-modal');
+    if (existingModal) {
+        existingModal.remove();
+        // Удаляем оверлейный слой, если есть
+        const overlay = document.querySelector('.modal-overlay');
+        if (overlay) {
+            overlay.remove();
+        }
+    }
+
+    // Проверяем, что клик не на кнопке опций и не в модальном окне
+    if (e.target.closest('.task-options-btn') || e.target.closest('.task-options-modal')) {
+        return;
+    }
+
     // Для сенсорных событий
     if (e.type === 'touchstart') {
         e.preventDefault();
@@ -123,7 +406,6 @@ function handleDragStart(e) {
     // Находим элемент задачи, которую перетаскивают
     const taskElement = e.target.closest('.task');
     if (!taskElement) return;
-
     // Сохраняем начальную позицию и создаем клон
     draggedElement = taskElement;
     originalColumn = taskElement.closest('.column-content');
@@ -189,7 +471,6 @@ function handleDragMove(e) {
 // Обработка окончания перетаскивания
 function handleDragEnd(e) {
     if (!draggedElement) return;
-
     // Сбрасываем стили перетаскиваемого элемента
     draggedElement.style.position = '';
     draggedElement.style.top = '';
@@ -236,4 +517,28 @@ function findColumnUnderCursor(clientX, clientY) {
     }
 
     return null;
+}
+
+// Инициализация всех функций при запуске приложения
+export function initTaskManagement() {
+    // Инициализация перетаскивания
+    initDragAndDrop();
+
+    // Инициализация обработчиков для существующих задач
+    document.querySelectorAll('.task').forEach(taskElement => {
+        const taskContent = taskElement.querySelector('.task-content');
+        if (taskContent) {
+            taskContent.addEventListener('dblclick', function () {
+                makeTaskEditable(taskContent);
+            });
+        }
+
+        const optionsButton = taskElement.querySelector('.task-options-btn');
+        if (optionsButton) {
+            optionsButton.addEventListener('click', function (e) {
+                e.stopPropagation();
+                showTaskOptionsModal(taskElement);
+            });
+        }
+    });
 }
