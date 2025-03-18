@@ -219,7 +219,7 @@
 }
 
 .btn-icon:hover {
-  color: #333;
+
   background-color: rgba(0, 0, 0, 0.05);
 }
 
@@ -238,7 +238,7 @@
 .task-wrapper {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   width: 100%;
   position: relative;
 }

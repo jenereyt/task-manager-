@@ -58,7 +58,7 @@
 
 /* Контент колонки */
 .column-content {
-  margin-bottom: 20px ;
+  margin-bottom: 20px;
   padding: 12px;
   min-height: 100px;
   flex-grow: 1;
@@ -122,7 +122,6 @@
   animation: fadeIn 0.3s ease;
 }
 
-/* Продвинутые стили для поля ввода названия колонки */
 .column-name-input {
   width: 100%;
   padding: 10px 14px;
@@ -193,6 +192,7 @@
 
 /* Стили для самой задачи */
 .task {
+  cursor: grab;
   padding: 5px;
   margin-bottom: 8px;
   border-radius: 8px;
@@ -210,7 +210,3 @@
   margin-right: 8px;
   opacity: 0.7;
 }
-
-
-
-

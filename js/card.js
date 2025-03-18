@@ -1,15 +1,9 @@
-// Глобальная переменная для отслеживания недавно открытой модалки
-let modalJustOpened = false;
-
-// Функция для отображения модального окна настроек задачи
+// Функция для отображения модального окна с объединённым оверлеем
 function showTaskOptionsModal(taskElement) {
-    // Отмечаем, что модалка только что открылась
-    modalJustOpened = true;
-
-    // Закрываем предыдущую модалку, если есть
-    const existingModal = document.querySelector('.task-options-modal');
-    if (existingModal) {
-        existingModal.remove();
+    // Удаляем существующий контейнер модального окна (если есть)
+    const existingContainer = document.querySelector('.modal-container');
+    if (existingContainer) {
+        existingContainer.remove();
     }
 
     // Получаем данные задачи
@@ -18,97 +12,96 @@ function showTaskOptionsModal(taskElement) {
     const deadline = taskElement.dataset.deadline || '';
     const isCompleted = taskElement.dataset.completed === 'true';
 
-    // Создаем модальное окно
+    // Создаем контейнер модального окна (оверлей)
+    const modalContainer = document.createElement('div');
+    modalContainer.className = 'modal-container';
+    Object.assign(modalContainer.style, {
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        right: '0',
+        bottom: '0',
+        zIndex: '1000',
+        backgroundColor: 'rgba(0, 0, 0, 0.3)' // полупрозрачный фон
+    });
+
+    // Создаем само модальное окно
     const modalElement = document.createElement('div');
     modalElement.className = 'task-options-modal';
-    modalElement.dataset.forTaskId = taskId;
-
     // Позиционируем модалку рядом с задачей
     const taskRect = taskElement.getBoundingClientRect();
-    modalElement.style.position = 'absolute';
-    modalElement.style.top = `${taskRect.bottom + window.scrollY + 5}px`;
-    modalElement.style.left = `${taskRect.left + window.scrollX}px`;
-    modalElement.style.zIndex = '1001';
+    Object.assign(modalElement.style, {
+        position: 'absolute',
+        top: `${taskRect.bottom + window.scrollY + 5}px`,
+        left: `${taskRect.left + window.scrollX}px`,
+        zIndex: '1001',
+        backgroundColor: '#fff',
+        padding: '15px',
+        borderRadius: '5px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+    });
 
     // Заполняем содержимое модалки
     modalElement.innerHTML = `
-        <div class="task-modal-header">
-            <h3>Настройки задачи</h3>
-            <button class="task-modal-close">&times;</button>
+      <div class="task-modal-header">
+        <h3>Настройки задачи</h3>
+        <button class="task-modal-close" title="Закрыть">&times;</button>
+      </div>
+      <div class="task-modal-content">
+        <div class="task-modal-field">
+          <label for="task-modal-text-${taskId}">Текст задачи:</label>
+          <input type="text" id="task-modal-text-${taskId}" class="task-modal-text" value="${taskContent}">
         </div>
-        <div class="task-modal-content">
-            <div class="task-modal-field">
-                <label for="task-modal-text-${taskId}">Текст задачи:</label>
-                <input type="text" id="task-modal-text-${taskId}" class="task-modal-text" value="${taskContent}">
-            </div>
-            
-            <div class="task-modal-field">
-                <label for="task-modal-deadline-${taskId}">Срок выполнения:</label>
-                <input type="datetime-local" id="task-modal-deadline-${taskId}" class="task-modal-deadline" value="${deadline}">
-            </div>
-            
-            <div class="task-modal-field">
-                <label class="task-completion-label">
-                    <input type="checkbox" class="task-modal-completed" ${isCompleted ? 'checked' : ''}>
-                    Задача выполнена
-                </label>
-            </div>
-            
-            <div class="task-modal-buttons">
-                <button class="task-modal-save">Сохранить</button>
-                <button class="task-modal-delete">Удалить задачу</button>
-            </div>
+        <div class="task-modal-field">
+          <label for="task-modal-deadline-${taskId}">Срок выполнения:</label>
+          <input type="datetime-local" id="task-modal-deadline-${taskId}" class="task-modal-deadline" value="${deadline}">
         </div>
+        <div class="task-modal-field">
+          <label class="task-completion-label">
+            <input type="checkbox" class="task-modal-completed" ${isCompleted ? 'checked' : ''}>
+            Задача выполнена
+          </label>
+        </div>
+        <div class="task-modal-buttons">
+          <button class="task-modal-save">Сохранить</button>
+          <button class="task-modal-delete">Удалить задачу</button>
+        </div>
+      </div>
     `;
 
-    // Предотвращаем закрытие модалки при клике на неё
-    modalElement.addEventListener('click', function(e) {
-        // Останавливаем распространение клика чтобы не дойти до документа
+    // Предотвращаем закрытие модалки при клике внутри неё
+    modalElement.addEventListener('click', function (e) {
         e.stopPropagation();
     });
 
-    // Добавляем модалку в DOM
-    document.body.appendChild(modalElement);
-
-    // Добавляем обработчики событий
-    modalElement.querySelector('.task-modal-close').addEventListener('click', function () {
-        modalElement.remove();
+    // Если клик происходит вне модального окна, закрываем его
+    modalContainer.addEventListener('click', function (e) {
+        if (!modalElement.contains(e.target)) {
+            modalContainer.remove();
+        }
     });
 
-    modalElement.querySelector('.task-modal-save').addEventListener('click', function () {
+    // Добавляем модалку в контейнер и контейнер в документ
+    modalContainer.appendChild(modalElement);
+    document.body.appendChild(modalContainer);
+
+    // Обработчики для кнопок модального окна
+    modalElement.querySelector('.task-modal-close').addEventListener('click', () => {
+        modalContainer.remove();
+    });
+
+    modalElement.querySelector('.task-modal-save').addEventListener('click', () => {
         saveTaskFromModal(modalElement, taskElement);
+        modalContainer.remove();
     });
 
-    modalElement.querySelector('.task-modal-delete').addEventListener('click', function () {
+    modalElement.querySelector('.task-modal-delete').addEventListener('click', () => {
         deleteTask(taskElement);
-        modalElement.remove();
+        modalContainer.remove();
     });
-
-    // Вместо обработчика документа для закрытия, добавляем его на отдельную оверлейную область
-    const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay';
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.right = '0';
-    overlay.style.bottom = '0';
-    overlay.style.zIndex = '1000'; // Ниже модалки но выше всего остального
-    overlay.style.backgroundColor = 'transparent'; // Прозрачный фон
-
-    document.body.appendChild(overlay);
-
-    overlay.addEventListener('click', function() {
-        modalElement.remove();
-        overlay.remove();
-    });
-
-    // Сбрасываем флаг после того как модалка отрисована
-    setTimeout(() => {
-        modalJustOpened = false;
-    }, 100);
 }
 
-// Остальной код остается без изменений
+// Функция для добавления новой задачи в колонку
 export function addNewTask(columnElement) {
     const columnContent = columnElement.querySelector('.column-content');
     if (!columnContent) {
@@ -135,7 +128,7 @@ export function addNewTask(columnElement) {
     const taskInput = taskElement.querySelector('.task-input');
     if (taskInput) {
         taskInput.focus();
-        taskInput.addEventListener('blur', function () {
+        taskInput.addEventListener('blur', () => {
             saveTask(taskInput, taskElement);
         });
         taskInput.addEventListener('keydown', function (e) {
@@ -154,41 +147,36 @@ export function addNewTask(columnElement) {
     }
 }
 
-export function saveTask(inputField, taskElement) {
+// Функция для сохранения задачи после редактирования текста
+function saveTask(inputField, taskElement) {
     const taskText = inputField.value.trim();
     if (!taskText) {
         taskElement.remove();
         return;
     }
 
-    // Получаем ID задачи из атрибута data-task-id
     const taskId = taskElement.dataset.taskId;
-
-    // Проверяем, есть ли у задачи deadline и статус выполнения
     let deadline = taskElement.dataset.deadline || '';
     let isCompleted = taskElement.dataset.completed === 'true';
 
-    // Заменяем поле ввода на статичный элемент с текстом задачи и кнопкой опций
+    // Создаем элемент для отображения задачи
     const taskContent = document.createElement('div');
     taskContent.className = 'task-wrapper';
-
-    // Добавляем класс, если задача выполнена
     const completedClass = isCompleted ? 'task-completed' : '';
-
     taskContent.innerHTML = `
-        <div class="task-content ${completedClass}" title="Дважды кликните для редактирования">
-            ${taskText}
-        </div>
-        <div class="task-options-btn" title="Настройки задачи">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                <circle cx="8" cy="4" r="1.5"/>
-                <circle cx="8" cy="8" r="1.5"/>
-                <circle cx="8" cy="12" r="1.5"/>
-            </svg>
-        </div>
+      <div class="task-content ${completedClass}" title="Дважды кликните для редактирования">
+        ${taskText}
+      </div>
+      <div class="task-options-btn" title="Настройки задачи">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="white">
+          <circle cx="8" cy="4" r="1.5"/>
+          <circle cx="8" cy="8" r="1.5"/>
+          <circle cx="8" cy="12" r="1.5"/>
+        </svg>
+      </div>
     `;
 
-    // Если есть срок, добавляем индикатор дедлайна
+    // Если указан срок выполнения, добавляем индикатор
     if (deadline) {
         const deadlineElement = document.createElement('div');
         deadlineElement.className = 'task-deadline';
@@ -199,20 +187,21 @@ export function saveTask(inputField, taskElement) {
     taskElement.innerHTML = '';
     taskElement.appendChild(taskContent);
 
-    // Добавляем обработчики событий
+    // Вешаем обработчики для редактирования и опций
     const taskDisplay = taskElement.querySelector('.task-content');
-    taskDisplay.addEventListener('dblclick', function () {
+    taskDisplay.addEventListener('dblclick', () => {
         makeTaskEditable(taskDisplay);
     });
 
     const optionsButton = taskElement.querySelector('.task-options-btn');
-    optionsButton.addEventListener('click', function (e) {
+    optionsButton.addEventListener('click', (e) => {
         e.stopPropagation();
         showTaskOptionsModal(taskElement);
     });
 }
 
-export function makeTaskEditable(taskContentElement) {
+// Функция для перевода задачи в режим редактирования
+function makeTaskEditable(taskContentElement) {
     const currentText = taskContentElement.textContent.trim();
     const taskElement = taskContentElement.closest('.task');
     const inputElement = document.createElement('input');
@@ -220,9 +209,7 @@ export function makeTaskEditable(taskContentElement) {
     inputElement.value = currentText;
     inputElement.className = 'task-input';
 
-    // Сохраняем содержимое задачи, чтобы восстановить его при отмене
     const originalContent = taskElement.innerHTML;
-
     const editableWrapper = document.createElement('div');
     editableWrapper.className = 'editable-task';
     editableWrapper.appendChild(inputElement);
@@ -233,7 +220,7 @@ export function makeTaskEditable(taskContentElement) {
     inputElement.focus();
     inputElement.select();
 
-    inputElement.addEventListener('blur', function () {
+    inputElement.addEventListener('blur', () => {
         saveTask(inputElement, taskElement);
     });
 
@@ -243,17 +230,14 @@ export function makeTaskEditable(taskContentElement) {
             inputElement.blur();
         } else if (e.key === 'Escape') {
             e.preventDefault();
-            // Восстанавливаем оригинальное содержимое при отмене
+            // Восстанавливаем оригинальное содержимое
             taskElement.innerHTML = originalContent;
-
-            // Повторно добавляем обработчики событий
             const taskDisplay = taskElement.querySelector('.task-content');
-            taskDisplay.addEventListener('dblclick', function () {
+            taskDisplay.addEventListener('dblclick', () => {
                 makeTaskEditable(taskDisplay);
             });
-
             const optionsButton = taskElement.querySelector('.task-options-btn');
-            optionsButton.addEventListener('click', function (e) {
+            optionsButton.addEventListener('click', (e) => {
                 e.stopPropagation();
                 showTaskOptionsModal(taskElement);
             });
@@ -261,34 +245,28 @@ export function makeTaskEditable(taskContentElement) {
     });
 }
 
-// Функция для сохранения задачи из модального окна
+// Функция для сохранения изменений задачи через модальное окно
 function saveTaskFromModal(modalElement, taskElement) {
     const taskId = taskElement.dataset.taskId;
     const textInput = modalElement.querySelector(`#task-modal-text-${taskId}`);
     const deadlineInput = modalElement.querySelector(`#task-modal-deadline-${taskId}`);
     const completedCheckbox = modalElement.querySelector('.task-modal-completed');
 
-    // Получаем новые значения
     const newText = textInput.value.trim();
     const newDeadline = deadlineInput.value;
     const isCompleted = completedCheckbox.checked;
 
-    // Обновляем атрибуты задачи
     taskElement.dataset.deadline = newDeadline;
     taskElement.dataset.completed = isCompleted.toString();
 
-    // Обновляем отображение задачи
     const taskDisplay = taskElement.querySelector('.task-content');
     taskDisplay.textContent = newText;
-
-    // Добавляем или удаляем класс выполненной задачи
     if (isCompleted) {
         taskDisplay.classList.add('task-completed');
     } else {
         taskDisplay.classList.remove('task-completed');
     }
 
-    // Обновляем или добавляем дедлайн
     let deadlineElement = taskElement.querySelector('.task-deadline');
     if (newDeadline) {
         if (!deadlineElement) {
@@ -300,15 +278,6 @@ function saveTaskFromModal(modalElement, taskElement) {
     } else if (deadlineElement) {
         deadlineElement.remove();
     }
-
-    // Удаляем оверлейный слой, если есть
-    const overlay = document.querySelector('.modal-overlay');
-    if (overlay) {
-        overlay.remove();
-    }
-
-    // Закрываем модальное окно
-    modalElement.remove();
 }
 
 // Функция для удаления задачи
@@ -316,18 +285,11 @@ function deleteTask(taskElement) {
     if (taskElement && taskElement.parentNode) {
         taskElement.parentNode.removeChild(taskElement);
     }
-    
-    // Удаляем оверлейный слой, если есть
-    const overlay = document.querySelector('.modal-overlay');
-    if (overlay) {
-        overlay.remove();
-    }
 }
 
 // Функция для форматирования даты дедлайна
 function formatDeadline(isoDateString) {
     if (!isoDateString) return '';
-
     const date = new Date(isoDateString);
     const now = new Date();
     const tomorrow = new Date(now);
@@ -354,18 +316,8 @@ function formatDeadline(isoDateString) {
     }
 }
 
-export function initDragAndDrop() {
-    document.addEventListener('mousedown', handleDragStart);
-    document.addEventListener('mousemove', handleDragMove);
-    document.addEventListener('mouseup', handleDragEnd);
+// --- Drag and Drop ---
 
-    // Для сенсорных устройств
-    document.addEventListener('touchstart', handleDragStart, { passive: false });
-    document.addEventListener('touchmove', handleDragMove, { passive: false });
-    document.addEventListener('touchend', handleDragEnd);
-}
-
-// Переменные для операций перетаскивания
 let draggedElement = null;
 let dragStartX = 0;
 let dragStartY = 0;
@@ -374,39 +326,34 @@ let dragOffsetY = 0;
 let placeholder = null;
 let originalColumn = null;
 
-// Обработка начала перетаскивания
+export function initDragAndDrop() {
+    document.addEventListener('mousedown', handleDragStart);
+    document.addEventListener('mousemove', handleDragMove);
+    document.addEventListener('mouseup', handleDragEnd);
+    document.addEventListener('touchstart', handleDragStart, { passive: false });
+    document.addEventListener('touchmove', handleDragMove, { passive: false });
+    document.addEventListener('touchend', handleDragEnd);
+}
+
 function handleDragStart(e) {
-    // Если модалка только что открылась, игнорируем начало перетаскивания
-    if (modalJustOpened) {
-        return;
-    }
-
-    // Закрываем модальное окно при начале перетаскивания
-    const existingModal = document.querySelector('.task-options-modal');
-    if (existingModal) {
-        existingModal.remove();
-        // Удаляем оверлейный слой, если есть
-        const overlay = document.querySelector('.modal-overlay');
-        if (overlay) {
-            overlay.remove();
-        }
-    }
-
-    // Проверяем, что клик не на кнопке опций и не в модальном окне
+    // Если клик по кнопке настроек или внутри модального окна – игнорируем начало перетаскивания
     if (e.target.closest('.task-options-btn') || e.target.closest('.task-options-modal')) {
         return;
     }
+    // Закрываем открытый модальный контейнер, если он есть
+    const openModal = document.querySelector('.modal-container');
+    if (openModal) {
+        openModal.remove();
+    }
 
-    // Для сенсорных событий
     if (e.type === 'touchstart') {
         e.preventDefault();
         e = e.touches[0];
     }
 
-    // Находим элемент задачи, которую перетаскивают
     const taskElement = e.target.closest('.task');
     if (!taskElement) return;
-    // Сохраняем начальную позицию и создаем клон
+
     draggedElement = taskElement;
     originalColumn = taskElement.closest('.column-content');
     dragStartX = e.clientX;
@@ -414,13 +361,12 @@ function handleDragStart(e) {
     dragOffsetX = e.clientX - taskElement.getBoundingClientRect().left;
     dragOffsetY = e.clientY - taskElement.getBoundingClientRect().top;
 
-    // Создаем заполнитель для сохранения места в колонке
+    // Создаем заполнитель для сохранения места
     placeholder = document.createElement('div');
     placeholder.className = 'task-placeholder';
     placeholder.style.height = `${taskElement.offsetHeight}px`;
     placeholder.style.width = `${taskElement.offsetWidth}px`;
 
-    // Вставляем заполнитель и стилизуем перетаскиваемый элемент
     taskElement.parentNode.insertBefore(placeholder, taskElement);
     taskElement.style.position = 'absolute';
     taskElement.style.zIndex = '1000';
@@ -428,18 +374,12 @@ function handleDragStart(e) {
     taskElement.style.opacity = '0.8';
     document.body.appendChild(taskElement);
 
-    // Позиционируем перетаскиваемый элемент
     updateDraggedPosition(e.clientX, e.clientY);
-
-    // Добавляем класс для стилизации
     taskElement.classList.add('dragging');
 }
 
-// Обработка движения при перетаскивании
 function handleDragMove(e) {
     if (!draggedElement) return;
-
-    // Для сенсорных событий
     if (e.type === 'touchmove') {
         e.preventDefault();
         e = e.touches[0];
@@ -447,19 +387,14 @@ function handleDragMove(e) {
 
     updateDraggedPosition(e.clientX, e.clientY);
 
-    // Находим колонку, над которой находится задача
     const targetColumn = findColumnUnderCursor(e.clientX, e.clientY);
     if (targetColumn) {
-        // Находим задачи в колонке
         const taskElements = Array.from(targetColumn.querySelectorAll('.task:not(.dragging)'));
-
-        // Находим задачу, после которой должна идти перетаскиваемая задача
         let nextTask = taskElements.find(task => {
             const rect = task.getBoundingClientRect();
             return e.clientY < rect.top + rect.height / 2;
         });
 
-        // Перемещаем заполнитель
         if (nextTask) {
             targetColumn.insertBefore(placeholder, nextTask);
         } else {
@@ -468,10 +403,9 @@ function handleDragMove(e) {
     }
 }
 
-// Обработка окончания перетаскивания
 function handleDragEnd(e) {
     if (!draggedElement) return;
-    // Сбрасываем стили перетаскиваемого элемента
+
     draggedElement.style.position = '';
     draggedElement.style.top = '';
     draggedElement.style.left = '';
@@ -480,62 +414,48 @@ function handleDragEnd(e) {
     draggedElement.style.opacity = '';
     draggedElement.classList.remove('dragging');
 
-    // Заменяем заполнитель на задачу
     if (placeholder && placeholder.parentNode) {
         placeholder.parentNode.insertBefore(draggedElement, placeholder);
-        placeholder.parentNode.removeChild(placeholder);
+        placeholder.remove();
     }
 
-    // Сбрасываем переменные
     draggedElement = null;
     placeholder = null;
     originalColumn = null;
 }
 
-// Обновляем позицию перетаскиваемого элемента
 function updateDraggedPosition(clientX, clientY) {
     if (!draggedElement) return;
-
     draggedElement.style.left = `${clientX - dragOffsetX}px`;
     draggedElement.style.top = `${clientY - dragOffsetY}px`;
 }
 
-// Находим колонку под курсором
 function findColumnUnderCursor(clientX, clientY) {
     const columns = document.querySelectorAll('.column-content');
-
     for (const column of columns) {
         const rect = column.getBoundingClientRect();
-        if (
-            clientX >= rect.left &&
-            clientX <= rect.right &&
-            clientY >= rect.top &&
-            clientY <= rect.bottom
-        ) {
+        if (clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom) {
             return column;
         }
     }
-
     return null;
 }
 
 // Инициализация всех функций при запуске приложения
-export function initTaskManagement() {
-    // Инициализация перетаскивания
+function initTaskManagement() {
     initDragAndDrop();
 
-    // Инициализация обработчиков для существующих задач
+    // Инициализация обработчиков для уже существующих задач
     document.querySelectorAll('.task').forEach(taskElement => {
         const taskContent = taskElement.querySelector('.task-content');
         if (taskContent) {
-            taskContent.addEventListener('dblclick', function () {
+            taskContent.addEventListener('dblclick', () => {
                 makeTaskEditable(taskContent);
             });
         }
-
         const optionsButton = taskElement.querySelector('.task-options-btn');
         if (optionsButton) {
-            optionsButton.addEventListener('click', function (e) {
+            optionsButton.addEventListener('click', (e) => {
                 e.stopPropagation();
                 showTaskOptionsModal(taskElement);
             });

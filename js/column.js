@@ -1,5 +1,5 @@
-// Импортируем необходимые функции
 import { addNewTask } from './card.js';
+
 
 export function addNewColumn() {
     const boardView = document.querySelector('.board-view');
@@ -69,7 +69,7 @@ export function addNewColumn() {
     // Добавляем обработчик для кнопки опций колонки
     const optionsBtn = columnElement.querySelector('.column-options-btn');
     if (optionsBtn) {
-        optionsBtn.addEventListener('click', function(e) {
+        optionsBtn.addEventListener('click', function (e) {
             e.stopPropagation();
             openColumnModal(columnElement);
         });
@@ -85,11 +85,11 @@ export function saveColumnName(inputField, columnElement) {
     const columnHeader = columnElement.querySelector('.editable-column-name');
     if (columnHeader) {
         columnHeader.innerHTML = `<h3 class="column-title" title="Двойной клик для редактирования">${finalName}</h3>`;
-        
+
         // Добавляем возможность редактирования по двойному клику
         const columnTitle = columnHeader.querySelector('.column-title');
         if (columnTitle) {
-            columnTitle.addEventListener('dblclick', function() {
+            columnTitle.addEventListener('dblclick', function () {
                 makeColumnNameEditable(columnElement);
             });
         }
@@ -101,18 +101,18 @@ export function makeColumnNameEditable(columnElement) {
     const columnHeader = columnElement.querySelector('.editable-column-name');
     const columnTitle = columnHeader.querySelector('.column-title');
     const currentName = columnTitle.textContent;
-    
+
     columnHeader.innerHTML = `<input type="text" class="column-name-input" value="${currentName}" autofocus>`;
-    
+
     const inputField = columnHeader.querySelector('.column-name-input');
     inputField.focus();
     inputField.select();
-    
-    inputField.addEventListener('blur', function() {
+
+    inputField.addEventListener('blur', function () {
         saveColumnName(this, columnElement);
     });
-    
-    inputField.addEventListener('keydown', function(e) {
+
+    inputField.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') {
             e.preventDefault();
             this.blur();
@@ -131,21 +131,21 @@ export function openColumnModal(columnElement) {
     if (existingModal) {
         document.body.removeChild(existingModal);
     }
-    
+
     const columnId = columnElement.dataset.columnId;
     const columnTitle = columnElement.querySelector('.column-title')?.textContent || 'Колонка без названия';
     const tasksCount = columnElement.querySelectorAll('.task').length;
     const creationDate = columnElement.dataset.creationDate || new Date().toLocaleDateString();
-    
+
     // Сохраняем дату создания, если она еще не была сохранена
     if (!columnElement.dataset.creationDate) {
         columnElement.dataset.creationDate = creationDate;
     }
-    
+
     // Создаем оверлей и модальное окно
     const modalOverlay = document.createElement('div');
     modalOverlay.className = 'column-modal-overlay';
-    
+
     modalOverlay.innerHTML = `
         <div class="column-modal" data-column-id="${columnId}">
             <div class="modal-header">
@@ -195,9 +195,9 @@ export function openColumnModal(columnElement) {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modalOverlay);
-    
+
     // Добавляем обработчики событий для модального окна
     setupModalEventListeners(modalOverlay, columnElement);
 }
@@ -207,30 +207,23 @@ function setupModalEventListeners(modalOverlay, columnElement) {
     // Закрытие модального окна
     const closeBtn = modalOverlay.querySelector('.close-modal-btn');
     if (closeBtn) {
-        closeBtn.addEventListener('click', function() {
+        closeBtn.addEventListener('click', function () {
             document.body.removeChild(modalOverlay);
         });
     }
-    
-    // Закрытие по клику на оверлей
-    modalOverlay.addEventListener('click', function(e) {
-        if (e.target === modalOverlay) {
-            document.body.removeChild(modalOverlay);
-        }
-    });
-    
+
     // Сохранение изменений
     const saveBtn = modalOverlay.querySelector('.save-column-btn');
     if (saveBtn) {
-        saveBtn.addEventListener('click', function() {
+        saveBtn.addEventListener('click', function () {
             saveColumnSettings(modalOverlay, columnElement);
         });
     }
-    
+
     // Удаление колонки
     const deleteBtn = modalOverlay.querySelector('.delete-column-btn');
     if (deleteBtn) {
-        deleteBtn.addEventListener('click', function() {
+        deleteBtn.addEventListener('click', function () {
             // Запрашиваем подтверждение перед удалением
             if (confirm('Вы уверены, что хотите удалить эту колонку со всеми задачами?')) {
                 columnElement.remove();
@@ -238,7 +231,7 @@ function setupModalEventListeners(modalOverlay, columnElement) {
             }
         });
     }
-    
+
     // Изменение цвета колонки при выборе в color picker
     const colorPicker = modalOverlay.querySelector('#column-color');
     if (colorPicker) {
@@ -246,11 +239,11 @@ function setupModalEventListeners(modalOverlay, columnElement) {
         const currentColor = window.getComputedStyle(columnElement).backgroundColor;
         if (currentColor !== 'rgba(0, 0, 0, 0)' && currentColor !== 'transparent') {
             // Преобразуем RGB в HEX для color picker
-            const rgbToHex = function(rgb) {
+            const rgbToHex = function (rgb) {
                 if (/^rgb/.test(rgb)) {
                     const matches = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
                     if (matches) {
-                        return '#' + 
+                        return '#' +
                             parseInt(matches[1]).toString(16).padStart(2, '0') +
                             parseInt(matches[2]).toString(16).padStart(2, '0') +
                             parseInt(matches[3]).toString(16).padStart(2, '0');
@@ -260,17 +253,17 @@ function setupModalEventListeners(modalOverlay, columnElement) {
             };
             colorPicker.value = rgbToHex(currentColor);
         }
-        
+
         // Предпросмотр изменения цвета
-        colorPicker.addEventListener('input', function() {
+        colorPicker.addEventListener('input', function () {
             columnElement.style.backgroundColor = this.value;
         });
     }
-    
+
     // Переключение свернутого режима
     const collapsedMode = modalOverlay.querySelector('#collapsed-mode');
     if (collapsedMode) {
-        collapsedMode.addEventListener('change', function() {
+        collapsedMode.addEventListener('change', function () {
             if (this.checked) {
                 columnElement.classList.add('collapsed');
             } else {
@@ -278,32 +271,32 @@ function setupModalEventListeners(modalOverlay, columnElement) {
             }
         });
     }
-    
+
     // Архивирование всех задач
     const archiveBtn = modalOverlay.querySelector('.archive-tasks-btn');
     if (archiveBtn) {
-        archiveBtn.addEventListener('click', function() {
+        archiveBtn.addEventListener('click', function () {
             if (confirm('Вы уверены, что хотите архивировать все задачи в этой колонке?')) {
                 // Здесь можно добавить логику архивирования
                 // Для простоты просто удалим все задачи
                 const tasks = columnElement.querySelectorAll('.task');
                 tasks.forEach(task => task.remove());
-                
+
                 // Обновим счетчик в модальном окне
                 const tasksCount = modalOverlay.querySelector('.tasks-count');
                 if (tasksCount) {
                     tasksCount.textContent = '0';
                 }
-                
+
                 alert('Все задачи были архивированы');
             }
         });
     }
-    
+
     // Сортировка задач по дате
     const sortBtn = modalOverlay.querySelector('.sort-tasks-btn');
     if (sortBtn) {
-        sortBtn.addEventListener('click', function() {
+        sortBtn.addEventListener('click', function () {
             // Здесь можно реализовать логику сортировки
             // Для демонстрации просто покажем сообщение
             alert('Функция сортировки задач будет реализована в следующем обновлении');
@@ -319,23 +312,23 @@ function saveColumnSettings(modalOverlay, columnElement) {
         const columnHeader = columnElement.querySelector('.editable-column-name');
         if (columnHeader) {
             columnHeader.innerHTML = `<h3 class="column-title" title="Двойной клик для редактирования">${nameInput.value.trim()}</h3>`;
-            
+
             // Восстанавливаем обработчик двойного клика
             const columnTitle = columnHeader.querySelector('.column-title');
             if (columnTitle) {
-                columnTitle.addEventListener('dblclick', function() {
+                columnTitle.addEventListener('dblclick', function () {
                     makeColumnNameEditable(columnElement);
                 });
             }
         }
     }
-    
+
     // Сохранение цвета колонки
     const colorPicker = modalOverlay.querySelector('#column-color');
     if (colorPicker) {
         columnElement.style.backgroundColor = colorPicker.value;
     }
-    
+
     // Сохранение режима отображения (свернутый/развернутый)
     const collapsedMode = modalOverlay.querySelector('#collapsed-mode');
     if (collapsedMode) {
@@ -345,7 +338,7 @@ function saveColumnSettings(modalOverlay, columnElement) {
             columnElement.classList.remove('collapsed');
         }
     }
-    
+
     // Закрываем модальное окно
     document.body.removeChild(modalOverlay);
 }
