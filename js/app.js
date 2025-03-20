@@ -1,6 +1,6 @@
 export let projects = [];
 import { openProject } from './board.js';
-import { initDragAndDrop } from './card.js';
+import { initDragAndDrop } from './task.js';
 export let isAsideOpen = false;
 export let activeTab = 'projects';
 

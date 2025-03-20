@@ -1,12 +1,13 @@
-import { addNewTask } from './card.js';
+import { addNewTask } from './task.js';
 
 
 export function addNewColumn() {
-    const boardView = document.querySelector('.board-view');
+    const boardView = document.getElementById('board-view');
+    const boardViewContent = document.querySelector('.board-view-content');
     const addColumnDiv = document.querySelector('.add-column');
 
-    if (!boardView || !addColumnDiv) {
-        console.error("Board view or add column div not found!");
+    if (!boardView || !boardViewContent || !addColumnDiv) {
+        console.error("Board view, board view content, or add column div not found!");
         return;
     }
 
@@ -32,8 +33,8 @@ export function addNewColumn() {
     <button class="btn btn-icon add-task-btn" title="Добавить задачу"><i class="fas fa-plus"></i> Добавить задачу</button>
   `;
 
-    // Вставляем колонку перед кнопкой "Добавить колонку"
-    boardView.insertBefore(columnElement, addColumnDiv);
+    // Вставляем колонку перед .add-column внутри .board-view-content
+    boardViewContent.insertBefore(columnElement, addColumnDiv);
 
     // Фокус на поле ввода названия колонки
     const inputField = columnElement.querySelector('.column-name-input');
@@ -50,7 +51,7 @@ export function addNewColumn() {
                 this.blur();
             } else if (e.key === 'Escape') {
                 if (!this.value.trim()) {
-                    boardView.removeChild(columnElement);
+                    boardViewContent.removeChild(columnElement); // Удаляем из boardViewContent
                 } else {
                     this.blur();
                 }

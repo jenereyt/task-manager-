@@ -36,7 +36,7 @@ function renderProjectBoard(project) {
           <button class="btn btn-icon more-options-btn" title="More options"><i class="fas fa-ellipsis-h"></i></button>
         </div>
       </div>
-      <div id="board-content" class="board-content"><!-- Содержимое будет добавлено динамически --></div>
+      <div id="board-view"></div>
     </div>
   `;
 }
@@ -110,33 +110,31 @@ function setActiveView(activeButton) {
   activeButton.classList.add('active');
 }
 
-// Инициализация выбранного вида
 function initializeView(viewType) {
-  const boardContent = document.getElementById('board-content');
-  if (!boardContent) {
-    console.error("Board content element not found!");
+  const boardView = document.getElementById('board-view'); // Изменяем на board-view
+  if (!boardView) {
+    console.error("Board view element not found!");
     return;
   }
 
-  boardContent.innerHTML = '';
+  boardView.innerHTML = ''; // Очистка только содержимого вида
 
   if (viewType === 'board') {
     renderEmptyBoardView();
   } else {
-    boardContent.innerHTML = `<div class="empty-view">${viewType.charAt(0).toUpperCase() + viewType.slice(1)} view will be implemented soon.</div>`;
+    boardView.innerHTML = `<div class="empty-view">${viewType.charAt(0).toUpperCase() + viewType.slice(1)} view will be implemented soon.</div>`;
   }
 }
 
-// Рендеринг пустого вида доски
 function renderEmptyBoardView() {
-  const boardContent = document.getElementById('board-content');
-  if (!boardContent) {
-    console.error("Board content element not found for rendering!");
+  const boardView = document.getElementById('board-view'); // Изменяем на board-view
+  if (!boardView) {
+    console.error("Board view element not found for rendering!");
     return;
   }
 
-  boardContent.innerHTML = `
-    <div class="board-view">
+  boardView.innerHTML = `
+    <div class="board-view-content">
       <div class="board-column add-column">
         <button class="add-column-btn">
           <i class="fas fa-plus"></i> Добавить колонку
@@ -145,13 +143,12 @@ function renderEmptyBoardView() {
     </div>
   `;
 
-  // Обработчик для добавления новой колонки
   const addColumnBtn = document.querySelector('.add-column-btn');
   if (addColumnBtn) {
     console.log("Add column button found, adding click event");
     addColumnBtn.addEventListener('click', function () {
       console.log("Add column button clicked");
-      addNewColumn(); // Функция импортирована из column.js
+      addNewColumn();
     });
   } else {
     console.error("Add column button not found!");
@@ -290,3 +287,4 @@ function makeEditable(e) {
     }
   });
 }
+
