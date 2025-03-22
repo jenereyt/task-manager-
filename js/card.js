@@ -211,26 +211,5 @@ function formatDeadline(isoDateString) {
         return `${date.toLocaleDateString('ru-RU', dateOptions)}, ${timeString}`;
     }
 }
-// Инициализация всех функций при запуске приложения
-function initTaskManagement() {
-    initDragAndDrop();
-
-    // Инициализация обработчиков для уже существующих задач
-    document.querySelectorAll('.task').forEach(taskElement => {
-        const taskContent = taskElement.querySelector('.task-content');
-        if (taskContent) {
-            taskContent.addEventListener('dblclick', () => {
-                makeTaskEditable(taskContent);
-            });
-        }
-        const optionsButton = taskElement.querySelector('.task-options-btn');
-        if (optionsButton) {
-            optionsButton.addEventListener('click', (e) => {
-                e.stopPropagation();
-                showTaskOptionsModal(taskElement);
-            });
-        }
-    });
-}
 
 export { showTaskOptionsModal, makeTaskEditable, saveTaskFromModal, deleteTask, formatDeadline };

@@ -40,7 +40,7 @@
   width: 100%;
   background-color: transparent;
   border: 1px solid var(--primary-color, #4a6cf7);
-  color: var(--text-color, #333);
+  color: var(--text-color, white);
   padding: 8px 12px;
   font-size: 16px;
   border-radius: 4px;
@@ -110,7 +110,7 @@
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
-  color: #888;
+  color: #333;
   display: flex;
   align-items: center;
   justify-content: center;

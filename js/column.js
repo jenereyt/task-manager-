@@ -236,31 +236,49 @@ function setupModalEventListeners(modalOverlay, columnElement) {
     // Изменение цвета колонки при выборе в color picker
     const colorPicker = modalOverlay.querySelector('#column-color');
     if (colorPicker) {
-        // Установка текущего цвета
-        const currentColor = window.getComputedStyle(columnElement).backgroundColor;
-        if (currentColor !== 'rgba(0, 0, 0, 0)' && currentColor !== 'transparent') {
-            // Преобразуем RGB в HEX для color picker
-            const rgbToHex = function (rgb) {
-                if (/^rgb/.test(rgb)) {
-                    const matches = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-                    if (matches) {
-                        return '#' +
-                            parseInt(matches[1]).toString(16).padStart(2, '0') +
-                            parseInt(matches[2]).toString(16).padStart(2, '0') +
-                            parseInt(matches[3]).toString(16).padStart(2, '0');
-                    }
-                }
-                return '#f1f1f1'; // Возвращаем цвет по умолчанию
-            };
-            colorPicker.value = rgbToHex(currentColor);
-        }
+        // Сохраняем исходный цвет колонки
+        const originalColor = window.getComputedStyle(columnElement).backgroundColor;
 
-        // Предпросмотр изменения цвета
+        // Функция преобразования RGB в HEX
+        const rgbToHex = function (rgb) {
+            if (/^rgba?\(/.test(rgb)) {
+                const matches = rgb.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+                if (matches) {
+                    return '#' +
+                        parseInt(matches[1]).toString(16).padStart(2, '0') +
+                        parseInt(matches[2]).toString(16).padStart(2, '0') +
+                        parseInt(matches[3]).toString(16).padStart(2, '0');
+                }
+            }
+            return '#f1f1f1'; // Цвет по умолчанию, если преобразование не удалось
+        };
+
+        // Устанавливаем исходный цвет в colorPicker
+        const setInitialColor = () => {
+            if (originalColor && originalColor !== 'rgba(0, 0, 0, 0)' && originalColor !== 'transparent') {
+                colorPicker.value = rgbToHex(originalColor);
+                columnElement.style.backgroundColor = originalColor; // Восстанавливаем исходный цвет
+            } else {
+                colorPicker.value = '#f1f1f1'; // Цвет по умолчанию
+                columnElement.style.backgroundColor = '#f1f1f1';
+            }
+        };
+
+        // Устанавливаем цвет при открытии colorPicker
+        setInitialColor();
+
+        // Предпросмотр изменения цвета при выборе
         colorPicker.addEventListener('input', function () {
-            columnElement.style.backgroundColor = this.value;
+            columnElement.style.backgroundColor = this.value; // Обновляем цвет в реальном времени
+        });
+
+        // Если модальное окно закрывается/открывается, можно сбросить цвет
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) { // Предполагаем, что клик вне модалки закрывает её
+                setInitialColor(); // Восстанавливаем исходный цвет при закрытии
+            }
         });
     }
-
     // Переключение свернутого режима
     const collapsedMode = modalOverlay.querySelector('#collapsed-mode');
     if (collapsedMode) {

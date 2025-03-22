@@ -60,7 +60,6 @@
     align-items: center;
     justify-content: center;
     background: transparent;
-    color: white;
   }
   
   .btn-icon:hover {
@@ -116,6 +115,7 @@
   }
   
   .more-options-btn {
+    color: white;
     margin-left: 10px;
     font-size: 1.2rem;
   }

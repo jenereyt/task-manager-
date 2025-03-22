@@ -20,10 +20,11 @@ const gradients = [
 ];
 
 
+
 function createStructure() {
   const appHTML = `
     <div class="app">
-      <aside class="aside">
+      <aside class="aside" id="sidebar">
         <button class="toggle-btn">
           <img src="/assets/right_arrow_icon.svg" alt="Toggle sidebar">
         </button>
