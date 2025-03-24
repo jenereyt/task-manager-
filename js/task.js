@@ -1,4 +1,4 @@
-import { showTaskOptionsModal, makeTaskEditable, saveTaskFromModal, deleteTask, formatDeadline } from './card.js';
+import { showTaskCardModal, makeTaskEditable, saveTaskFromCard, deleteTask, formatDeadline } from './card.js';
 // Функция для добавления новой задачи в колонку
 function addNewTask(columnElement) {
     const columnContent = columnElement.querySelector('.column-content');
@@ -65,6 +65,7 @@ function saveTask(inputField, taskElement) {
       <div class="task-content ${completedClass}" title="Дважды кликните для редактирования">
         ${taskText}
       </div>
+      
       <div class="task-options-btn" title="Настройки задачи">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="white">
           <circle cx="8" cy="4" r="1.5"/>
@@ -94,7 +95,7 @@ function saveTask(inputField, taskElement) {
     const optionsButton = taskElement.querySelector('.task-options-btn');
     optionsButton.addEventListener('click', (e) => {
         e.stopPropagation();
-        showTaskOptionsModal(taskElement);
+        showTaskCardModal(taskElement);
     });
 }
 
@@ -107,7 +108,7 @@ let dragOffsetY = 0;
 let placeholder = null;
 let originalColumn = null;
 
- function initDragAndDrop() {
+function initDragAndDrop() {
     document.addEventListener('mousedown', handleDragStart);
     document.addEventListener('mousemove', handleDragMove);
     document.addEventListener('mouseup', handleDragEnd);
